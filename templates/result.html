@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Prediction Result</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h1>🧠 Prediction Result</h1>
+    <img src="{{ img_path }}" alt="Traffic Sign" width="300">
+    <h2>Prediction: <span class="highlight">{{ prediction }}</span></h2>
+    <a href="/upload" class="btn">🔁 Try Another</a>
+    <a href="/" class="btn back">🏠 Home</a>
+  </div>
+</body>
+</html>

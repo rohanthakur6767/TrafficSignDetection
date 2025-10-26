@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🚦 AI Traffic Sign Detection</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>🚦 AI Traffic Sign Detection & Road Safety System</h1>
+    <div class="btn-group">
+      <a href="/upload" class="btn">📤 Upload Image</a>
+      <button class="btn" onclick="startWebcam()">🎥 Start Live Detection</button>
+    </div>
+    <div id="video-container" style="display:none;">
+      <h3>Live Webcam Feed</h3>
+      <img src="{{ url_for('video_feed') }}" width="640" height="480">
+      <button class="btn stop" onclick="stopWebcam()">⛔ Stop</button>
+    </div>
+  </div>
+</body>
+</html>
