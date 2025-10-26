@@ -95,22 +95,31 @@ def upload_page():
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    file = request.files['file']
-    if not file:
+    file = request.files.get('file')
+    if not file or file.filename == '':
         return "No file uploaded"
-    file_path = os.path.join('static', file.filename)
+
+    # Ensure upload folder exists
+    upload_folder = 'uploads'
+    os.makedirs(upload_folder, exist_ok=True)
+
+    # Save file to the folder
+    file_path = os.path.join(upload_folder, file.filename)
     file.save(file_path)
 
+    # Load and preprocess image
     img = image.load_img(file_path, target_size=(32, 32))
     img = image.img_to_array(img)
     img = np.expand_dims(img, axis=0)
     img = img / 255.0
 
+    # Make prediction
     preds = model.predict(img)
     pred_class = np.argmax(preds)
     result = classes.get(pred_class, "Unknown Sign")
 
     return render_template('result.html', prediction=result, img_path=file_path)
+    
 
 if __name__ == '__main__':
     app.run(debug=True)
