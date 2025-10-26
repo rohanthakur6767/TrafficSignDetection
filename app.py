@@ -1,14 +1,12 @@
-from flask import Flask, render_template, request, Response
+from flask import Flask, render_template, request
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image
 import numpy as np
-import cv2
-import os
+from PIL import Image
 
 app = Flask(__name__)
 model = load_model('model/traffic_classifier_cnn.h5')
 
-# Class labels (update if your dataset differs)
 classes = {
     0: 'Speed limit (20km/h)',
     1: 'Speed limit (30km/h)',
@@ -55,42 +53,8 @@ classes = {
     42: 'End of no passing by vehicles over 3.5 metric tons'
 }
 
-camera = cv2.VideoCapture(0)
-
-def generate_frames():
-    while True:
-        success, frame = camera.read()
-        if not success:
-            break
-        else:
-            # Preprocess frame
-            img = cv2.resize(frame, (32, 32))
-            img = image.img_to_array(img)
-            img = np.expand_dims(img, axis=0)
-            img = img / 255.0
-
-            preds = model.predict(img)
-            pred_class = np.argmax(preds)
-            label = classes.get(pred_class, "Unknown")
-
-            # Display label on frame
-            cv2.putText(frame, label, (30, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-            _, buffer = cv2.imencode('.jpg', frame)
-            frame = buffer.tobytes()
-
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-
 @app.route('/')
 def index():
-    return render_template('index.html')
-
-@app.route('/video_feed')
-def video_feed():
-    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
-
-@app.route('/upload')
-def upload_page():
     return render_template('upload.html')
 
 @app.route('/predict', methods=['POST'])
@@ -99,27 +63,16 @@ def predict():
     if not file or file.filename == '':
         return "No file uploaded"
 
-    # Ensure upload folder exists
-    upload_folder = 'uploads'
-    os.makedirs(upload_folder, exist_ok=True)
+    # Process image in memory (no saving to disk)
+    img = Image.open(file).resize((32, 32))
+    img_array = np.array(img) / 255.0
+    img_array = np.expand_dims(img_array, axis=0)
 
-    # Save file to the folder
-    file_path = os.path.join(upload_folder, file.filename)
-    file.save(file_path)
-
-    # Load and preprocess image
-    img = image.load_img(file_path, target_size=(32, 32))
-    img = image.img_to_array(img)
-    img = np.expand_dims(img, axis=0)
-    img = img / 255.0
-
-    # Make prediction
-    preds = model.predict(img)
+    preds = model.predict(img_array)
     pred_class = np.argmax(preds)
     result = classes.get(pred_class, "Unknown Sign")
 
-    return render_template('result.html', prediction=result, img_path=file_path)
-    
+    return render_template('result.html', prediction=result)
 
 if __name__ == '__main__':
     app.run(debug=True)
