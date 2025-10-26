@@ -1,0 +1,13 @@
+.ipynb_checkpoints/
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+data/
+*.pickle
+*.zip
+*.tar
+*.rar
+*.csv
+*.ipynb_checkpoints
+model_files/
