@@ -125,6 +125,7 @@ def predict():
     return render_template('result.html', prediction=result, img_path=file_path)
 
 
-if __name__ == '__main__':
-    # ✅ Set host and port explicitly for Render
-    app.run(host='0.0.0.0', port=10000, debug=False)
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
